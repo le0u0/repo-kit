@@ -1,0 +1,15 @@
+{
+  "name": "shared-release-workflows",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.10.0 <25"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "semantic-release": "25.0.9",
+    "conventional-changelog-conventionalcommits": "9.3.1"
+  }
+}
