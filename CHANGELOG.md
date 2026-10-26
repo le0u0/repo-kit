@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/le0u0/workflows/compare/v1.0.0...v1.1.0) (2026-10-26)
+
+
+### Features
+
+* support multi-package repos in release workflow ([01faf18](https://github.com/le0u0/workflows/commit/01faf185903d4ee7b43e84b81838d56f37b2d00a))
+* support multi-package repos in release workflow ([df1254b](https://github.com/le0u0/workflows/commit/df1254bff299eee44371f1aeb7d58c253b342c0a))
+
 ## 1.0.0 (2026-10-26)
 
 
