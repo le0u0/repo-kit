@@ -1,18 +1,18 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 import { test } from 'node:test';
 import semanticRelease from 'semantic-release';
-import config from '../release.config.mjs';
+import config from '../release-options.mjs';
 
 // Only local Git remotes are used. No GitHub plugin or credentials enter a dry run.
 const plugins = config.plugins.slice(0, 2);
 const silent = () => new Writable({ write(chunk, encoding, done) { done(); } });
 
-for (const [name, baseline, messages, expected, branch = 'main'] of [
+for (const [name, baseline, messages, expected, branch = 'main', selfHosted = false] of [
   ['first fix', null, 'fix: repair behavior', '1.0.0'],
   ['first breaking change', null, 'feat!: replace API', '1.0.0'],
   ['patch', '1.2.3', 'fix: repair behavior', '1.2.4'],
@@ -25,6 +25,7 @@ for (const [name, baseline, messages, expected, branch = 'main'] of [
   ['no first release', null, 'chore: initialize project', null],
   ['independent history', '8.0.0', 'fix: repair behavior', '8.0.1'],
   ['other branch', '1.2.3', 'feat: add behavior', null, 'feature'],
+  ['self-hosted tooling', null, 'feat: add behavior', '1.0.0', 'main', true],
 ]) {
   test(name, async () => {
     const root = await mkdtemp(join(tmpdir(), 'shared-release-'));
@@ -39,7 +40,13 @@ for (const [name, baseline, messages, expected, branch = 'main'] of [
       git('config', 'url.' + remote + '.insteadOf', 'https://github.com/validation/caller.git');
       git('remote', 'add', 'origin', remote);
       await writeFile(join(cwd, 'package.json'), '{"name":"fixture","version":"0.0.42"}\n');
-      git('add', 'package.json');
+      if (selfHosted) {
+        const source = new URL('../', import.meta.url);
+        for (const file of await readdir(source)) {
+          if (file.endsWith('.mjs')) await copyFile(new URL(file, source), join(cwd, file));
+        }
+      }
+      git('add', '.');
       git('commit', '-m', 'chore: initial project');
       if (baseline) git('tag', `v${baseline}`);
       if (branch !== 'main') git('switch', '-c', branch);

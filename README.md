@@ -12,6 +12,10 @@ No npm publishing, version-bump commits, package version edits, issue/PR comment
 
 ## Use
 
+Merge this setup with a `feat:` commit. This repo's CI runs dry-run tests, then creates
+its first **`v1.0.0`** tag and GitHub release. Later releases follow the version rules below.
+The caller example works once that tag exists.
+
 Add `.github/workflows/ci.yml` to the caller. Adapt checks and Node version to the project.
 List every required check job in `release.needs`; failed or skipped checks block release.
 Do not add `always()` to the release condition.
@@ -46,14 +50,13 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
-    uses: le0u0/workflows/.github/workflows/release.yml@main
+    uses: le0u0/workflows/.github/workflows/release.yml@v1.0.0
     with:
-      tooling-ref: main
+      tooling-ref: v1.0.0
 ```
 
-After setup merges, replace **both** `@main` and `tooling-ref: main` with the **same full
-commit SHA** or published shared-workflow tag. A SHA is immutable; tags can move.
-No shared-workflow tag exists yet. Both references are needed for the separate tooling checkout.
+Use the **same tag or full commit SHA** in `uses` and `tooling-ref` when updating callers.
+A SHA is immutable; tags can move. Both references are needed for the separate tooling checkout.
 
 Releases are serialized per caller. Avoid the same concurrency group in caller workflows.
 Keep deployment in caller jobs: tags/releases created with `GITHUB_TOKEN` do not trigger

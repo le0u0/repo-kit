@@ -1,5 +1,5 @@
 import semanticRelease from 'semantic-release';
-import config from './release.config.mjs';
+import config from './release-options.mjs';
 
 await semanticRelease({
   ...config,
