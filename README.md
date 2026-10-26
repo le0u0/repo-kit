@@ -70,8 +70,6 @@ Do these steps in every repository that should use the Release workflow.
 
 3. **Commit it to `main`** through a normal PR.
 
-To have a coding agent do this for you, copy the prompt in [SETUP_PROMPT.md](SETUP_PROMPT.md).
-
 ## Use it day to day
 
 1. Merge PRs to `main` with conventional titles (`feat: ...`, `fix: ...`).
@@ -84,16 +82,16 @@ To have a coding agent do this for you, copy the prompt in [SETUP_PROMPT.md](SET
 | Input | Default | Description |
 | --- | --- | --- |
 | `release-type` | `node` | release-please release type, such as `node`, `python`, `simple`. It decides which files get the version bump. Ignored when `config-file` is set. |
-| `config-file` | none | Path to `release-please-config.json`. Set it for repos with several independently versioned packages. |
-| `manifest-file` | none | Path to `.release-please-manifest.json`. Set it together with `config-file`. |
+| `config-file` | none | Path to the release-please config, such as `.github/release-please-config.json`. Set it for repos with several independently versioned packages. |
+| `manifest-file` | none | Path to the release-please manifest, such as `.github/release-please-manifest.json`. Set it together with `config-file`. |
 
 ## Several packages in one repository
 
 A repository with several folders that each have their own version (a monorepo) can version them independently. Every package gets its own release PR, changelog, and tag (`<package>-vX.Y.Z`), and only commits that touch its folder count toward its version.
 
-Add two files at the repository root. This example has two Node packages, `package-a` and `package-b`:
+Add two files under `.github/`. This example has two Node packages, `package-a` and `package-b`. Package keys are folder paths relative to the repository root.
 
-`release-please-config.json`
+`.github/release-please-config.json`
 ```json
 {
   "packages": {
@@ -103,7 +101,7 @@ Add two files at the repository root. This example has two Node packages, `packa
 }
 ```
 
-`.release-please-manifest.json` holds each package's current version:
+`.github/release-please-manifest.json` holds each package's current version:
 ```json
 {
   "package-a": "1.0.0",
@@ -129,8 +127,8 @@ jobs:
   release:
     uses: le0u0/workflows/.github/workflows/release.yml@main
     with:
-      config-file: release-please-config.json
-      manifest-file: .release-please-manifest.json
+      config-file: .github/release-please-config.json
+      manifest-file: .github/release-please-manifest.json
 ```
 
 Add one entry to `packages` for each new folder. The `simple` type also writes a `version.txt` inside each package folder.
