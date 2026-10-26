@@ -7,6 +7,14 @@ on:
         description: release-please release type, e.g. node, python, simple
         type: string
         default: node
+      config-file:
+        description: release-please config path for multi-package repos; when set, release-type is ignored
+        type: string
+        default: ''
+      manifest-file:
+        description: release-please manifest path for multi-package repos
+        type: string
+        default: ''
     secrets:
       token:
         description: PAT or GitHub App token; needed for required checks to run on the release PR
@@ -22,5 +30,7 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
-          release-type: ${{ inputs.release-type }}
+          release-type: ${{ inputs.config-file == '' && inputs.release-type || '' }}
+          config-file: ${{ inputs.config-file }}
+          manifest-file: ${{ inputs.manifest-file }}
           token: ${{ secrets.token || github.token }}
