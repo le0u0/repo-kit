@@ -1,0 +1,94 @@
+# workflows
+
+Reusable GitHub Actions workflows shared across repositories.
+
+**Release**. It turns Conventional Commits on `main` into a version-bump pull request, then into a tag and GitHub release once you merge that PR. Nothing is ever pushed to `main` directly.
+
+## How it works
+
+```
+feature PR merged to main
+        │
+        ▼
+Release workflow runs on push to main
+        │
+        ▼
+release-please reads commits since the last release
+        │
+        ├─ no feat/fix/breaking commits ──▶ nothing happens
+        │
+        ▼
+opens (or updates) one "release PR"
+  - bumps the version
+  - updates CHANGELOG.md
+        │
+        ▼
+you review and merge the release PR
+        │
+        ▼
+release-please creates the tag (vX.Y.Z) and the GitHub release
+```
+
+The version bump comes from the commit types since the last release:
+
+| Commit | Bump |
+| --- | --- |
+| `fix: ...` | patch (1.0.0 → 1.0.1) |
+| `feat: ...` | minor (1.0.0 → 1.1.0) |
+| `feat!: ...` or a `BREAKING CHANGE:` footer | major (1.0.0 → 2.0.0) |
+| `docs:`, `chore:`, `refactor:`, `ci:`, ... | no release |
+
+If you squash-merge, the **PR title** becomes the commit message, so it must follow this format. A title like `Update stuff` produces no release and no error.
+
+The shared logic lives in this repository. Each repository that uses it contains only a short caller file that points here. It runs [release-please](https://github.com/googleapis/release-please-action) under the hood.
+
+## Set up a repository
+
+Do these steps in every repository that should use the Release workflow.
+
+1. **Allow Actions to open PRs.** Settings → Actions → General → turn on "Allow GitHub Actions to create and approve pull requests".
+
+2. **Add the caller file** `.github/workflows/release.yml`:
+
+   ```yaml
+   name: Release
+
+   on:
+     push:
+       branches: [main]
+
+   permissions:
+     contents: write
+     pull-requests: write
+
+   jobs:
+     release:
+       uses: le0u0/workflows/.github/workflows/release.yml@v1
+       with:
+         release-type: node # optional, default: node
+   ```
+
+3. **Commit it to `main`** through a normal PR.
+
+## Use it day to day
+
+1. Merge PRs to `main` with conventional titles (`feat: ...`, `fix: ...`).
+2. After each merge, release-please opens or updates the release PR. It collects every releasable change since the last release.
+3. When you want to ship, review the release PR (version and changelog) and merge it.
+4. The tag and GitHub release are created automatically.
+
+## Options
+
+| Input | Default | Description |
+| --- | --- | --- |
+| `release-type` | `node` | release-please release type, such as `node`, `python`, `simple`. It decides which files get the version bump. |
+
+## Troubleshooting
+
+- **No release PR appears.** No `feat`, `fix`, or breaking commit since the last release, or the merged PR title was not conventional.
+- **Workflow fails with a permission error opening the PR.** Turn on the repository setting in step 1.
+- **"workflow not found" in the caller.** The `@v1` tag does not exist yet, or this repository's Actions access does not allow other repositories.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
