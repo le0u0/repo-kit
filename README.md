@@ -1,103 +1,55 @@
-# Shared release workflow
+# @le0u0/release-workflows
 
-Conventional Commits produce independent caller version tags and GitHub releases with generated notes.
+## Description
 
-- **Here:** reusable workflow, semantic-release configuration, locked release dependencies.
-- **Callers:** build, lint, tests, deployment. No semantic-release dependencies needed;
-  remove existing caller-side release configuration.
+An npm CLI that installs and updates local GitHub Actions release workflows.
 
-Releases use the caller's full Git history, only on pushes to its `main` branch.
-Only `GITHUB_TOKEN` with `contents: write` is required; no `secrets: inherit` needed.
-No npm publishing, version-bump commits, package version edits, issue/PR comments, or labels.
+## How it works
 
-## Use
+The generated release job runs after your required checks succeed on `main`.
+Conventional Commits determine versions: `fix` = patch, `feat` = minor, breaking change = major.
+Each repository gets independent version tags and GitHub releases with generated notes.
+The first qualifying release is `v1.0.0`; existing release tags set the baseline.
 
-Merge this setup with a `feat:` commit. This repo's CI runs dry-run tests, then creates
-its first **`v1.0.0`** tag and GitHub release. Later releases follow the version rules below.
-The caller example works once that tag exists.
+CI uses the installed npm package; it does not fetch workflows or tooling from this repository.
+Caller releases never publish to npm, edit version fields, or comment/label issues and PRs.
+Remove existing semantic-release configuration before adopting this package.
 
-Add `.github/workflows/ci.yml` to the caller. Adapt checks and Node version to the project.
-List every required check job in `release.needs`; failed or skipped checks block release.
-Do not add `always()` to the release condition.
+## Install and set up
 
-```yaml
-name: CI
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-
-permissions:
-  contents: read
-
-jobs:
-  checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
-        with:
-          node-version: '24'
-          package-manager-cache: false
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
-
-  release:
-    needs: [checks]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      contents: write
-    uses: le0u0/workflows/.github/workflows/release.yml@v1.0.0
-    with:
-      tooling-ref: v1.0.0
-```
-
-Use the **same tag or full commit SHA** in `uses` and `tooling-ref` when updating callers.
-A SHA is immutable; tags can move. Both references are needed for the separate tooling checkout.
-
-Releases are serialized per caller. Avoid the same concurrency group in caller workflows.
-Keep deployment in caller jobs: tags/releases created with `GITHUB_TOKEN` do not trigger
-other Actions workflows.
-
-## Versions
-
-- `fix:` produces a patch: `1.2.3` to `1.2.4`.
-- `feat:` produces a minor: `1.2.3` to `1.3.0`.
-- Any type with `!` or a `BREAKING CHANGE:` footer produces a major: `1.2.3` to `2.0.0`.
-- Non-release changes such as `docs:` and `chore:` alone produce no release. Highest bump wins.
-
-Squash merges must preserve the Conventional Commit subject and breaking-change footer.
-Without existing release tags, all reachable commits are analyzed; the first warranted
-release is **`v1.0.0`**. Otherwise nothing is published. Existing reachable `vX.Y.Z` tags
-set the baseline; later releases analyze commits since the last applicable tag.
-
-`package.json` and lockfile versions stay unchanged. Caller tags/releases own version history.
-
-## Access
-
-Keep this tooling repository **public**; public and private callers are supported.
-Private/internal workflow-sharing access alone does not let a caller's `GITHUB_TOKEN`
-read the separate tooling checkout. Private tooling needs a different authentication design.
-
-Caller Actions policies must allow this workflow, `actions/checkout`, and `actions/setup-node`.
-Organization policies must permit `contents: write`; tag rules must allow release-tag creation.
-
-## Validate
-
-With Node.js 24.10+ (24.x), run:
+Requires Node.js 24.10+ (24.x), npm, and a published package version.
 
 ```sh
-npm ci --ignore-scripts --no-audit --no-fund
-npm test
+npm install --save-dev --save-exact @le0u0/release-workflows
+npx release-workflows setup --needs checks
 ```
 
-Tests use disposable local remotes and dry runs, without credentials or the GitHub plugin.
-They verify versions, notes, branch exclusion, and unchanged files/refs. Live GitHub execution
-and token/tag-rule access remain unverified. Preset 9.3.1 matches the notes generator's writer 8.
+This updates `.github/workflows/ci.yml`, preserving other jobs.
+Replace `checks` with your required job IDs; use `--workflow path` for another file.
+Existing YAML requires confirmation before replacement; the default answer is no.
 
-References: [semantic-release](https://semantic-release.gitbook.io/semantic-release/usage/configuration),
-[GitHub plugin](https://github.com/semantic-release/github#options),
-[reusable workflows](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows).
+To create a new workflow, supply your check commands:
+
+```sh
+npx release-workflows setup --check "npm run lint && npm test && npm run build"
+```
+
+To upgrade:
+
+```sh
+npm install --save-dev --save-exact @le0u0/release-workflows@latest
+npx release-workflows setup
+```
+
+Commit `package.json`, `package-lock.json`, and the workflow. The release job uses
+`GITHUB_TOKEN` with `contents: write`; repository rules must permit release tags.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+
+## References
+
+- [semantic-release](https://semantic-release.gitbook.io/semantic-release/)
+- [Conventional Commits](https://www.conventionalcommits.org/)
+- [GitHub Actions](https://docs.github.com/en/actions)

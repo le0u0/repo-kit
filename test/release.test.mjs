@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { copyFile, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Writable } from 'node:stream';
 import { test } from 'node:test';
 import semanticRelease from 'semantic-release';
@@ -89,3 +90,31 @@ for (const [name, baseline, messages, expected, branch = 'main', selfHosted = fa
     }
   });
 }
+
+test('installed tooling uses its own release plugins when the caller has competing versions', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'release-resolution-'));
+  const tool = join(root, 'tool');
+  const semantic = join(tool, 'node_modules/semantic-release');
+  try {
+    await mkdir(join(semantic, 'node_modules/@semantic-release'), { recursive: true });
+    await writeFile(join(semantic, 'package.json'), '{"name":"semantic-release","main":"index.js"}');
+    await writeFile(join(semantic, 'index.js'), '');
+    await copyFile(new URL('../release-options.mjs', import.meta.url), join(tool, 'release-options.mjs'));
+    const names = ['commit-analyzer', 'release-notes-generator', 'github'];
+    for (const [index, name] of names.entries()) {
+      await symlink(dirname(config.plugins[index][0]), join(semantic, 'node_modules/@semantic-release', name), 'dir');
+      const competing = join(root, 'node_modules/@semantic-release', name);
+      await mkdir(competing, { recursive: true });
+      await writeFile(join(competing, 'package.json'), '{"main":"index.js","type":"module"}');
+      await writeFile(join(competing, 'index.js'), 'throw new Error("Caller plugin must not load");');
+    }
+    await symlink(fileURLToPath(new URL('../node_modules/conventional-changelog-conventionalcommits', import.meta.url)),
+      join(tool, 'node_modules/conventional-changelog-conventionalcommits'), 'dir');
+    const { default: installed } = await import(pathToFileURL(join(tool, 'release-options.mjs')));
+    const { analyzeCommits } = await import(pathToFileURL(installed.plugins[0][0]));
+    const bump = await analyzeCommits(installed.plugins[0][1], {
+      cwd: root, commits: [{ hash: 'abc123', message: 'feat!: replace API' }], logger: { log() {} },
+    });
+    assert.equal(bump, 'major');
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
