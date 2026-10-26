@@ -70,6 +70,8 @@ Do these steps in every repository that should use the Release workflow.
 
 3. **Commit it to `main`** through a normal PR.
 
+To have a coding agent do this for you, copy the prompt in [SETUP_PROMPT.md](SETUP_PROMPT.md).
+
 ## Use it day to day
 
 1. Merge PRs to `main` with conventional titles (`feat: ...`, `fix: ...`).
