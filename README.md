@@ -1,55 +1,48 @@
-# @le0u0/release-workflows
+# le0u0/workflows
 
 ## Description
 
-An npm CLI that installs and updates local GitHub Actions release workflows.
+Reusable GitHub Actions workflows shared across repositories.
 
-## How it works
+## Release
 
-The generated release job runs after your required checks succeed on `main`.
-Conventional Commits determine versions: `fix` = patch, `feat` = minor, breaking change = major.
-Each repository gets independent version tags and GitHub releases with generated notes.
-The first qualifying release is `v1.0.0`; existing release tags set the baseline.
+`.github/workflows/release.yml` runs [release-please](https://github.com/googleapis/release-please-action)
+on pushes to `main`. It reads Conventional Commits and opens a release PR that bumps the version
+and changelog: `fix` = patch, `feat` = minor, breaking change (`!` or `BREAKING CHANGE:`) = major.
+Merging that PR creates the tag and GitHub release. Other commit types (`docs`, `chore`, ...) make no release.
+Squash-merge PR titles become the commit message, so they must be conventional.
 
-CI uses the installed npm package; it does not fetch workflows or tooling from this repository.
-Caller releases never publish to npm, edit version fields, or comment/label issues and PRs.
-Remove existing semantic-release configuration before adopting this package.
+Add this to `.github/workflows/release.yml` in each repository:
 
-## Install and set up
+```yaml
+name: Release
 
-Requires Node.js 24.10+ (24.x), npm, and a published package version.
+on:
+  push:
+    branches: [main]
 
-```sh
-npm install --save-dev --save-exact @le0u0/release-workflows
-npx release-workflows setup --needs checks
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    uses: le0u0/workflows/.github/workflows/release.yml@v1
+    with:
+      release-type: node # optional, default node
+    secrets:
+      token: ${{ secrets.RELEASE_TOKEN }} # optional
 ```
 
-This updates `.github/workflows/ci.yml`, preserving other jobs.
-Replace `checks` with your required job IDs; use `--workflow path` for another file.
-Existing YAML requires confirmation before replacement; the default answer is no.
+Requirements:
 
-To create a new workflow, supply your check commands:
+- Repository setting: Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
+- PRs opened with the default `GITHUB_TOKEN` do not trigger other workflows, so required checks will not
+  run on the release PR. Pass a PAT or GitHub App token as `RELEASE_TOKEN` to fix this.
+- This repository must be public, or its Actions access must allow other repositories to use it.
 
-```sh
-npx release-workflows setup --check "npm run lint && npm test && npm run build"
-```
-
-To upgrade:
-
-```sh
-npm install --save-dev --save-exact @le0u0/release-workflows@latest
-npx release-workflows setup
-```
-
-Commit `package.json`, `package-lock.json`, and the workflow. The release job uses
-`GITHUB_TOKEN` with `contents: write`; repository rules must permit release tags.
+Callers follow the `@v1` tag; moving it updates every repository. Pin `@v1.2.3` to upgrade manually.
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-## References
-
-- [semantic-release](https://semantic-release.gitbook.io/semantic-release/)
-- [Conventional Commits](https://www.conventionalcommits.org/)
-- [GitHub Actions](https://docs.github.com/en/actions)
