@@ -114,11 +114,14 @@ To bump a version stored in another file, such as a JSON manifest, use `simple` 
 ```json
 "package-a": {
   "release-type": "simple",
+  "package-name": "package-a",
   "extra-files": [
     { "type": "json", "path": "config/info.json", "jsonpath": "$.version" }
   ]
 }
 ```
+
+`simple` packages need `package-name` to get a per-package tag (`package-a-vX.Y.Z`). Without it the tag is a bare `vX.Y.Z`, and two `simple` packages collide.
 
 Then point the caller at both files:
 
