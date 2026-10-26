@@ -83,7 +83,57 @@ To have a coding agent do this for you, copy the prompt in [SETUP_PROMPT.md](SET
 
 | Input | Default | Description |
 | --- | --- | --- |
-| `release-type` | `node` | release-please release type, such as `node`, `python`, `simple`. It decides which files get the version bump. |
+| `release-type` | `node` | release-please release type, such as `node`, `python`, `simple`. It decides which files get the version bump. Ignored when `config-file` is set. |
+| `config-file` | none | Path to `release-please-config.json`. Set it for repos with several independently versioned packages. |
+| `manifest-file` | none | Path to `.release-please-manifest.json`. Set it together with `config-file`. |
+
+## Several packages in one repository
+
+A repository with several folders that each have their own version (a monorepo) can version them independently. Every package gets its own release PR, changelog, and tag (`<package>-vX.Y.Z`), and only commits that touch its folder count toward its version.
+
+Add two files at the repository root. This example has two Node packages, `package-a` and `package-b`:
+
+`release-please-config.json`
+```json
+{
+  "packages": {
+    "package-a": { "release-type": "node" },
+    "package-b": { "release-type": "node" }
+  }
+}
+```
+
+`.release-please-manifest.json` holds each package's current version:
+```json
+{
+  "package-a": "1.0.0",
+  "package-b": "1.2.3"
+}
+```
+
+To bump a version stored in another file, such as a JSON manifest, use `simple` and list the file under `extra-files`:
+
+```json
+"package-a": {
+  "release-type": "simple",
+  "extra-files": [
+    { "type": "json", "path": "config/info.json", "jsonpath": "$.version" }
+  ]
+}
+```
+
+Then point the caller at both files:
+
+```yaml
+jobs:
+  release:
+    uses: le0u0/workflows/.github/workflows/release.yml@main
+    with:
+      config-file: release-please-config.json
+      manifest-file: .release-please-manifest.json
+```
+
+Add one entry to `packages` for each new folder. The `simple` type also writes a `version.txt` inside each package folder.
 
 ## Troubleshooting
 
