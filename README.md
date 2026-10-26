@@ -40,7 +40,7 @@ The version bump comes from the commit types since the last release:
 
 If you squash-merge, the **PR title** becomes the commit message, so it must follow this format. A title like `Update stuff` produces no release and no error.
 
-The shared logic lives in this repository. Each repository that uses it contains only a short caller file that points here. It runs [release-please](https://github.com/googleapis/release-please-action) under the hood.
+The shared logic lives in this repository. Each repository that uses it contains only a short caller file that points here at `@main`, so a change merged here applies to every repository on its next run. It runs [release-please](https://github.com/googleapis/release-please-action) under the hood.
 
 ## Set up a repository
 
@@ -63,12 +63,14 @@ Do these steps in every repository that should use the Release workflow.
 
    jobs:
      release:
-       uses: le0u0/workflows/.github/workflows/release.yml@v1
+       uses: le0u0/workflows/.github/workflows/release.yml@main
        with:
          release-type: node # optional, default: node
    ```
 
 3. **Commit it to `main`** through a normal PR.
+
+To have a coding agent do this for you, copy the prompt in [SETUP_PROMPT.md](SETUP_PROMPT.md).
 
 ## Use it day to day
 
@@ -87,7 +89,7 @@ Do these steps in every repository that should use the Release workflow.
 
 - **No release PR appears.** No `feat`, `fix`, or breaking commit since the last release, or the merged PR title was not conventional.
 - **Workflow fails with a permission error opening the PR.** Turn on the repository setting in step 1.
-- **"workflow not found" in the caller.** The `@v1` tag does not exist yet, or this repository's Actions access does not allow other repositories.
+- **"workflow not found" in the caller.** This repository's Actions access does not allow other repositories to use its workflows.
 
 ## License
 
