@@ -1,15 +1,15 @@
 ---
 name: setup-release-workflow
-description: Add automated releases (version bump, changelog, tags) to the current GitHub repo with the shared le0u0/workflows release workflow. Use for "set up version bump", "automate releases", "add release workflow", release-please, semantic versioning.
+description: Add automated releases (version bump, changelog, tags) to the current GitHub repo with the shared le0u0/repo-kit release workflow. Use for "set up version bump", "automate releases", "add release workflow", release-please, semantic versioning.
 ---
 
 # Setup release workflow
 
-The README at `le0u0/workflows` is the source of truth and changes over time. Fetch it fresh each run.
+The README at `le0u0/repo-kit` is the source of truth and changes over time. Fetch it fresh each run.
 
 ## Steps
 
-1. Fetch the README: `gh api repos/le0u0/workflows/contents/README.md -H "Accept: application/vnd.github.raw"`. Follow section "Set up a repository". Done when you can name each value the workflow file needs.
+1. Fetch the README: `gh api repos/le0u0/repo-kit/contents/README.md -H "Accept: application/vnd.github.raw"`. Follow section "Set up a repository". Done when you can name each value the workflow file needs.
 2. Fill the values from the repo:
    - `on.push.branches`: the repo's default branch.
    - `release-type`: `node` when `package.json` exists, else `simple` (README "Options").

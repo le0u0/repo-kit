@@ -1,4 +1,4 @@
-# workflows
+# repo-kit
 
 Reusable GitHub Actions workflows and setup tooling shared across repositories.
 
@@ -63,7 +63,7 @@ Do these steps in every repository that should use the Release workflow.
 
    jobs:
      release:
-       uses: le0u0/workflows/.github/workflows/release.yml@main
+       uses: le0u0/repo-kit/.github/workflows/release.yml@main
        with:
          release-type: node # optional, default: node
    ```
@@ -128,7 +128,7 @@ Then point the caller at both files:
 ```yaml
 jobs:
   release:
-    uses: le0u0/workflows/.github/workflows/release.yml@main
+    uses: le0u0/repo-kit/.github/workflows/release.yml@main
     with:
       config-file: .github/release-please-config.json
       manifest-file: .github/release-please-manifest.json
