@@ -13,6 +13,6 @@ else
 fi
 
 gh api -X PUT "repos/$repo/actions/permissions/workflow" \
-  -F can_approve_pull_request_reviews=true -f default_workflow_permissions=read --silent
+  -F can_approve_pull_request_reviews=true --silent
 
 echo "applied to $repo"

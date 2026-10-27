@@ -1,10 +1,24 @@
 # repo-kit
 
-Reusable GitHub Actions workflows and setup tooling shared across repositories.
+Shared GitHub setup for my repositories. One Claude Code skill applies all of it to a repo:
 
-**Release**. It turns Conventional Commits on `main` into a version-bump pull request, then into a tag and GitHub release once you merge that PR. Nothing is ever pushed to `main` directly.
+- **Release workflow**: a reusable workflow that turns Conventional Commits on `main` into a version-bump pull request, then into a tag and GitHub release once you merge that PR. Nothing is ever pushed to `main` directly.
+- **Repository settings**: the `protected-main` ruleset and the Actions permission the release workflow needs, applied by `setup/apply.sh`.
+- **Skill** `setup-repo`: checks what the repo already has, applies the missing settings, and opens a PR with the release workflow.
 
 ## How it works
+
+```
+setup-repo skill in the target repo
+        │
+        ├─ settings already match ──▶ skipped
+        ├─ settings missing ────────▶ setup/apply.sh applies them
+        └─ release.yml missing ─────▶ PR adds the caller file
+```
+
+## Release workflow
+
+### Flow
 
 ```
 feature PR merged to main
@@ -44,7 +58,7 @@ The shared logic lives in this repository. Each repository that uses it contains
 
 ## Set up a repository
 
-Do these steps in every repository that should use the Release workflow.
+Ask the `setup-repo` skill (see [Skill](#skill)), or do these steps by hand in every repository that should use the Release workflow.
 
 1. **Allow Actions to open PRs.** Settings → Actions → General → turn on "Allow GitHub Actions to create and approve pull requests".
 
@@ -153,13 +167,13 @@ setup/apply.sh owner/repo
 - Ruleset `protected-main` on `main`: restrict deletion, block force pushes, require a pull request before merging (`setup/protected-main.json`).
 - Actions: allow GitHub Actions to create and approve pull requests.
 
-Running it again updates the existing ruleset. Requires `gh` with admin access to the repository.
+Safe to run again: it updates the existing ruleset in place and the Actions setting is just set to the same value. A `protected-main` ruleset you customized in a repo is overwritten, so check it first. Requires `gh` with admin access to the repository.
 
 "Auto-close issues with merged linked pull requests" is on by default and has no API field, so the script does not touch it.
 
 ## Skill
 
-`skills/setup-release-workflow` is a Claude Code skill that sets up the Release workflow in a repository. See its [README](skills/setup-release-workflow/README.md).
+`skills/setup-repo` is a Claude Code skill that applies the settings and the Release workflow to a repository. See its [README](skills/setup-repo/README.md).
 
 ## License
 
