@@ -16,14 +16,9 @@ If the repo has several independently versioned packages, or several plugin fold
 
 ## Install
 
-Clone this repository and link the skill into your personal skills folder:
-
 ```sh
-git clone https://github.com/le0u0/repo-kit.git
-ln -s "$PWD/repo-kit/skills/setup-release-workflow" ~/.claude/skills/setup-release-workflow
+npx skills add le0u0/repo-kit
 ```
-
-Restart Claude Code. Pull the clone to update the skill.
 
 ## Use
 
