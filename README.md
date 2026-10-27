@@ -1,6 +1,6 @@
 # workflows
 
-Reusable GitHub Actions workflows shared across repositories.
+Reusable GitHub Actions workflows and setup tooling shared across repositories.
 
 **Release**. It turns Conventional Commits on `main` into a version-bump pull request, then into a tag and GitHub release once you merge that PR. Nothing is ever pushed to `main` directly.
 
@@ -141,6 +141,25 @@ Add one entry to `packages` for each new folder. The `simple` type also writes a
 - **No release PR appears.** No `feat`, `fix`, or breaking commit since the last release, or the merged PR title was not conventional.
 - **Workflow fails with a permission error opening the PR.** Turn on the repository setting in step 1.
 - **"workflow not found" in the caller.** This repository's Actions access does not allow other repositories to use its workflows.
+
+## Repository setup
+
+`setup/apply.sh` applies the standard GitHub settings to a repository:
+
+```sh
+setup/apply.sh owner/repo
+```
+
+- Ruleset `protected-main` on `main`: restrict deletion, block force pushes, require a pull request before merging (`setup/protected-main.json`).
+- Actions: allow GitHub Actions to create and approve pull requests.
+
+Running it again updates the existing ruleset. Requires `gh` with admin access to the repository.
+
+"Auto-close issues with merged linked pull requests" is on by default and has no API field, so the script does not touch it.
+
+## Skill
+
+`skills/setup-release-workflow` is a Claude Code skill that sets up the Release workflow in a repository. See its [README](skills/setup-release-workflow/README.md).
 
 ## License
 
