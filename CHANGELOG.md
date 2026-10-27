@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.0](https://github.com/le0u0/repo-kit/compare/v1.1.0...v2.0.0) (2026-10-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* callers must use le0u0/repo-kit/.github/workflows/release.yml@main
+
+### Features
+
+* add setup-release-workflow skill and repo setup script ([bfefe05](https://github.com/le0u0/repo-kit/commit/bfefe0590d690db233ebf35d7f862577080a034e))
+* rename repository to repo-kit ([30ffd9f](https://github.com/le0u0/repo-kit/commit/30ffd9f941933a8431f46653c0c1ae66a1b85a7b))
+* turn release skill into setup-repo skill ([cb111a5](https://github.com/le0u0/repo-kit/commit/cb111a55906061dcbe8e3d74ee0f54f31509693c))
+
 ## [1.1.0](https://github.com/le0u0/workflows/compare/v1.0.0...v1.1.0) (2026-10-26)
 
 
