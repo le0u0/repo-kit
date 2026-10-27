@@ -14,6 +14,17 @@ Claude Code skill that adds automated releases (version bump, changelog, tags) t
 
 If the repo has several independently versioned packages, or several plugin folders (each with `.claude-plugin/plugin.json`), the skill sets up the multi-package config. Each package is versioned on its own. A single-package setup would bump every plugin when any one changes.
 
+## Install
+
+Clone this repository and link the skill into your personal skills folder:
+
+```sh
+git clone https://github.com/le0u0/repo-kit.git
+ln -s "$PWD/repo-kit/skills/setup-release-workflow" ~/.claude/skills/setup-release-workflow
+```
+
+Restart Claude Code. Pull the clone to update the skill.
+
 ## Use
 
 Ask Claude Code in the target repository: "set up release workflow", "automate releases", or "add version bump".
