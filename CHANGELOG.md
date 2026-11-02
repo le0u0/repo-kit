@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.0](https://github.com/le0u0/repo-kit/compare/v2.0.0...v2.1.0) (2026-11-02)
+
+
+### Features
+
+* document plugin.json version bump on release ([1cdec38](https://github.com/le0u0/repo-kit/commit/1cdec386e0ad27d58689a704cc84d5dc3100c8e7))
+* document plugin.json version bump on release ([db6616b](https://github.com/le0u0/repo-kit/commit/db6616b23a762f861bb49f29f583b4f42f600bfc))
+
 ## [2.0.0](https://github.com/le0u0/repo-kit/compare/v1.1.0...v2.0.0) (2026-10-27)
 
 
