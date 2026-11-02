@@ -150,6 +150,31 @@ jobs:
 
 Add one entry to `packages` for each new folder. The `simple` type also writes a `version.txt` inside each package folder.
 
+## Plugin version in `plugin.json`
+
+`release-type: simple` only bumps `version.txt` and `CHANGELOG.md`. A Claude Code plugin keeps its version in `.claude-plugin/plugin.json`, which stays stale unless listed under `extra-files`.
+
+`.github/release-please-config.json`
+```json
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "extra-files": [
+        { "type": "json", "path": ".claude-plugin/plugin.json", "jsonpath": "$.version" }
+      ]
+    }
+  }
+}
+```
+
+`.github/release-please-manifest.json`, set to the version already in `plugin.json`:
+```json
+{ ".": "1.1.0" }
+```
+
+Point the caller at both files with `config-file` and `manifest-file`, as in the section above.
+
 ## Troubleshooting
 
 - **No release PR appears.** No `feat`, `fix`, or breaking commit since the last release, or the merged PR title was not conventional.
