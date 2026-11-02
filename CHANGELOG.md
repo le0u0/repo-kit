@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.1](https://github.com/le0u0/repo-kit/compare/v2.1.0...v2.1.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* setup-repo fixes stale plugin.json version on existing callers ([f8908ab](https://github.com/le0u0/repo-kit/commit/f8908ab21ba532d31505c1b378052d86c1f87104))
+* setup-repo fixes stale plugin.json version on existing callers ([41d39e1](https://github.com/le0u0/repo-kit/commit/41d39e1ebb27da838defe92d3f86162097d5e9fd))
+
 ## [2.1.0](https://github.com/le0u0/repo-kit/compare/v2.0.0...v2.1.0) (2026-11-02)
 
 
