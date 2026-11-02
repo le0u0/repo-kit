@@ -15,7 +15,7 @@ The README at `le0u0/repo-kit` is the source of truth and changes over time. Fet
    - Already matching: skip, say so.
    - A ruleset named `protected-main` that differs from the template: show the difference and overwrite only after the user agrees.
    - Otherwise run `apply.sh <owner>/<repo>`. Done when each setting is reported as applied or already present.
-3. Release workflow. Skip when `.github/workflows/release.yml` already calls `le0u0/repo-kit`. Otherwise fill the values from the repo:
+3. Release workflow. When `.github/workflows/release.yml` already calls `le0u0/repo-kit`, skip it except for one check: the repo has a `.claude-plugin/plugin.json` with a `version`, and the caller has no `config-file` or the config has no `extra-files` entry for that file. Then the plugin version is stale. Show the user. After they agree, add the config and manifest from README section "Plugin version in `plugin.json`" to step 5's PR. Seed the manifest with the latest released version (latest tag), and set `plugin.json` `version` to that value. Otherwise fill the values from the repo:
    - `on.push.branches`: the repo's default branch.
    - `release-type`: `node` when `package.json` exists, else `simple` (README "Options").
    - Several independently versioned packages (e.g. one folder per package): follow README section "Several packages in one repository" instead of setting `release-type`.
